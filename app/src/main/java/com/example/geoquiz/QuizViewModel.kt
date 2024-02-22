@@ -13,6 +13,7 @@ class QuizViewModel : ViewModel() {
     )
     var currentIndex = 0
     val isCheaterList = MutableList(questionBank.size) { false }
+    var hintsRemaining = 3
 
     val currentQuestionAnswer: Boolean
         get() =

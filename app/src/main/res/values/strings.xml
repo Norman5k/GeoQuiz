@@ -28,5 +28,5 @@ Answer</string>
     <string name="cheat_button">Cheat!</string>
     <string name="judgment_toast">Cheating is
 wrong.</string>
-    <string name="api_level">API Level %1$d</string>
+    <string name="hints">%1$d hints remaining</string>
 </resources>

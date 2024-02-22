@@ -23,6 +23,7 @@ class Main1Activity : AppCompatActivity() {
     private lateinit var nextButton: Button
     private lateinit var cheatButton: Button
     private lateinit var questionTextView: TextView
+    private lateinit var hintsTextView: TextView
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProviders.of(this)[QuizViewModel::class.java]
     }
@@ -39,6 +40,7 @@ class Main1Activity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.text_question)
+        hintsTextView = findViewById(R.id.hints_text)
 
         trueButton.setOnClickListener {
             checkAnswer(true)
@@ -49,7 +51,8 @@ class Main1Activity : AppCompatActivity() {
         nextButton.setOnClickListener {
             nextQuestion()
         }
-        cheatButton.setOnClickListener { view->
+        hintsTextView.text = getString(R.string.hints, quizViewModel.hintsRemaining)
+        cheatButton.setOnClickListener {
             val intent = CheatActivity.newIntent(this, quizViewModel.currentQuestionAnswer)
             startActivityForResult(
                 intent,
@@ -101,6 +104,11 @@ class Main1Activity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_CHEAT)
         {
             quizViewModel.isCheaterList[quizViewModel.currentIndex] = data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            quizViewModel.hintsRemaining -= 1
+            hintsTextView.text = getString(R.string.hints, quizViewModel.hintsRemaining)
+            if (quizViewModel.hintsRemaining == 0) {
+                cheatButton.isClickable = false
+            }
         }
     }
 
