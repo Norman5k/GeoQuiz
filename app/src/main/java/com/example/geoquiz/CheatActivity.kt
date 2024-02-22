@@ -4,6 +4,7 @@ package com.example.geoquiz
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -14,6 +15,7 @@ const val EXTRA_ANSWER_SHOWN = "com.example.geoquiz.answer_shown"
 
 class CheatActivity : AppCompatActivity() {
     private lateinit var answerTextView: TextView
+    private lateinit var versionTextView: TextView
     private lateinit var showAnswerButton: Button
     private var answerIsTrue = false
     private val cheatViewModel : CheatViewModel by lazy {
@@ -26,7 +28,10 @@ class CheatActivity : AppCompatActivity() {
 
         answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
         answerTextView = findViewById(R.id.answer_text_view)
+        versionTextView = findViewById(R.id.version_text_view)
         showAnswerButton = findViewById(R.id.show_answer_button)
+
+        versionTextView.text = getString(R.string.api_level, Build.VERSION.SDK_INT)
 
         if (cheatViewModel.isCheater) {
             answerTextView.setText(if (answerIsTrue) R.string.answer_true else R.string.answer_false)

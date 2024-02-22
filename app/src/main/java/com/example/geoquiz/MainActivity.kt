@@ -2,6 +2,7 @@
 
 package com.example.geoquiz
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -26,6 +27,7 @@ class Main1Activity : AppCompatActivity() {
         ViewModelProviders.of(this)[QuizViewModel::class.java]
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
@@ -40,18 +42,18 @@ class Main1Activity : AppCompatActivity() {
 
         trueButton.setOnClickListener {
             checkAnswer(true)
-            updateClickable(false)
         }
         falseButton.setOnClickListener {
             checkAnswer(false)
-            updateClickable(false)
         }
         nextButton.setOnClickListener {
             nextQuestion()
         }
-        cheatButton.setOnClickListener {
+        cheatButton.setOnClickListener { view->
             val intent = CheatActivity.newIntent(this, quizViewModel.currentQuestionAnswer)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            startActivityForResult(
+                intent,
+                REQUEST_CODE_CHEAT)
         }
         questionTextView.setOnClickListener {
             nextQuestion()
@@ -62,7 +64,6 @@ class Main1Activity : AppCompatActivity() {
     private fun nextQuestion() {
         quizViewModel.moveToNext()
         updateQuestion()
-        updateClickable(true)
     }
 
     override fun onStart() {
@@ -110,11 +111,6 @@ class Main1Activity : AppCompatActivity() {
             KEY_INDEX,
             quizViewModel.currentIndex
         )
-    }
-
-    private fun updateClickable(isClickable: Boolean) {
-        trueButton.isClickable = isClickable
-        falseButton.isClickable = isClickable
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
