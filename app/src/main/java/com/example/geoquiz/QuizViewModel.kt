@@ -12,6 +12,7 @@ class QuizViewModel : ViewModel() {
         Question(R.string.question_asia, true)
     )
     var currentIndex = 0
+    val isCheaterList = MutableList(questionBank.size) { false }
 
     val currentQuestionAnswer: Boolean
         get() =

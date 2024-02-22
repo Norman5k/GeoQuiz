@@ -1,5 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.geoquiz
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -10,16 +14,17 @@ import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_CODE_CHEAT = 0
 
 class Main1Activity : AppCompatActivity() {
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: Button
+    private lateinit var cheatButton: Button
     private lateinit var questionTextView: TextView
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProviders.of(this)[QuizViewModel::class.java]
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +35,7 @@ class Main1Activity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
+        cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.text_question)
 
         trueButton.setOnClickListener {
@@ -41,16 +47,22 @@ class Main1Activity : AppCompatActivity() {
             updateClickable(false)
         }
         nextButton.setOnClickListener {
-            quizViewModel.moveToNext()
-            updateQuestion()
-            updateClickable(true)
+            nextQuestion()
+        }
+        cheatButton.setOnClickListener {
+            val intent = CheatActivity.newIntent(this, quizViewModel.currentQuestionAnswer)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
         }
         questionTextView.setOnClickListener {
-            quizViewModel.moveToNext()
-            updateQuestion()
-            updateClickable(true)
+            nextQuestion()
         }
         updateQuestion()
+    }
+
+    private fun nextQuestion() {
+        quizViewModel.moveToNext()
+        updateQuestion()
+        updateClickable(true)
     }
 
     override fun onStart() {
@@ -78,6 +90,19 @@ class Main1Activity : AppCompatActivity() {
         Log.d(TAG, "onDestroy()")
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if (requestCode == REQUEST_CODE_CHEAT)
+        {
+            quizViewModel.isCheaterList[quizViewModel.currentIndex] = data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d(TAG, "onSaveInstanceState")
@@ -95,13 +120,14 @@ class Main1Activity : AppCompatActivity() {
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
 
-        val textResId = if (userAnswer == correctAnswer) R.string.correct_toast
-        else R.string.incorrect_toast
-        Toast.makeText(
-            this,
-            textResId,
-            Toast.LENGTH_SHORT
-        ).show()
+        val messageResId = when {
+            quizViewModel.isCheaterList[quizViewModel.currentIndex] ->
+                R.string.judgment_toast
+            userAnswer == correctAnswer ->
+                R.string.correct_toast
+            else -> R.string.incorrect_toast
+        }
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
 
     private fun updateQuestion() {
